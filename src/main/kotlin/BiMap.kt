@@ -1,4 +1,5 @@
 import java.lang.StringBuilder
+import java.util.function.BiConsumer
 import java.util.function.BiFunction
 
 
@@ -26,8 +27,11 @@ class BiMap<K, V>() : MutableMap<K, V> {
         this.putAll(map)
     }
 
+    operator fun invoke(value : V) = reverse[value]
+
     override fun put(key: K, value: V): V? {
-        remove(key,value)
+        remove(key)
+        removeVal(value)
         reverse[value] = key
         map[key] = value
         return null
@@ -77,6 +81,15 @@ class BiMap<K, V>() : MutableMap<K, V> {
 
     override fun containsValue(value: V) = values.contains(value)
 
+    /**
+     * @return true if the map contains the pair (key,value)
+     * will return false if the biMap contains the key AND the value, but both
+     * are not mapped to each other.
+     */
+    fun contains(key: K, value : V): Boolean {
+        return map[key] == value
+    }
+
     override fun get(key: K) = map[key]
 
     fun getVal(value : V) = reverse[value]
@@ -96,4 +109,12 @@ class BiMap<K, V>() : MutableMap<K, V> {
         forEach { t, u ->  b.append("[$t,$u]") }
         return b.toString()
     }
+
+    fun forEachIndexed(action: (index: Int, K,V) -> Unit){
+        var counter = 0
+        forEach { t, u -> action(counter++,t,u) }
+    }
+
+
+
 }
